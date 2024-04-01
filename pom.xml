@@ -7,7 +7,7 @@
   </parent>
 
   <artifactId>youdebug</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <name>YouDebug</name>
   <description>
     YouDebug is a non-interactive debugger scripted by Groovy to assist
@@ -24,42 +24,67 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.groovy.maven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <release>11</release>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>3.0.2</version>
+        <configuration>
+            <testSources>
+              <!-- 
+              <testSource>
+                <directory>${project.basedir}/src/main/java</directory>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
+              </testSource>
+              <testSource>
+                <directory>${project.basedir}/src/main/groovy</directory>
+                <includes>
+                  <include>**/*.groovy</include>
+                </includes>
+              </testSource>
+              -->
+              <testSource>
+                <directory>${project.basedir}/src/test/java</directory>
+                <includes>
+                  <include>**/*.groovy</include>
+                </includes>
+              </testSource>
+            </testSources>
+        </configuration>
         <executions>
           <execution>
-            <id>gen</id>
             <goals>
+              <goal>addSources</goal>
+              <goal>addTestSources</goal>
               <goal>generateStubs</goal>
               <goal>compile</goal>
-              <!--goal>generateTestStubs</goal>
-              <goal>testCompile</goal-->
+              <goal>generateTestStubs</goal>
+              <goal>compileTests</goal>
+              <goal>removeStubs</goal>
+              <goal>removeTestStubs</goal>
+              <goal>groovydoc</goal>
+              <goal>groovydocTests</goal>
             </goals>
           </execution>
+          <!--
           <execution>
-            <id>doc-generation</id>
-            <phase>pre-site</phase>
+            <phase>site</phase>
             <goals>
-              <goal>execute</goal>
+              <goal>generateStubs</goal>
+              <goal>generateTestStubs</goal>
+              <goal>groovydoc</goal>
+              <goal>groovydocTests</goal>
             </goals>
-            <configuration>
-              <scriptpath>
-                  <element>${project.basedir}/src/docgenerator</element>
-              </scriptpath>
-              <source>
-                org.codehaus.groovy.tools.DocGenerator.main(
-                  "target/generated-sources/groovy-stubs/main/org/kohsuke/youdebug/JDICategory.java"
-                );
-              </source>
-              <classpath>
-                <element>
-                  <groupId>com.thoughtworks.qdox</groupId>
-                  <artifactId>qdox</artifactId>
-                  <version>1.6.3</version>
-                </element>
-              </classpath>
-            </configuration>
-          </execution>
+          </execution
+          -->
         </executions>
       </plugin>
       <plugin>
@@ -67,7 +92,7 @@
         <executions>
           <execution>
             <goals>
-              <goal>attached</goal>
+              <goal>single</goal>
             </goals>
             <phase>package</phase>
             <configuration>
@@ -112,31 +137,18 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>3.8.2</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy</artifactId>
-      <version>1.6.5</version>
-    </dependency>
-    <dependency>
-      <groupId>com.sun</groupId>
-      <artifactId>tools</artifactId>
-      <version>1.5</version>
-      <scope>system</scope>
-      <systemPath>${toolsjar}</systemPath>
-    </dependency>
+	<dependency>
+    	<groupId>org.apache.groovy</groupId>
+    	<artifactId>groovy</artifactId>
+    	<version>4.0.20</version>
+	</dependency>
     <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
-      <version>2.0.16</version>
-    </dependency>
-    <dependency><!-- to keep IntelliJ happy -->
-      <groupId>com.thoughtworks.qdox</groupId>
-      <artifactId>qdox</artifactId>
-      <version>1.6.3</version>
-      <scope>test</scope>
+      <version>2.37</version>
     </dependency>
   </dependencies>
 
@@ -148,17 +160,6 @@
       </activation>
       <properties>
         <toolsjar>${java.home}/../lib/tools.jar</toolsjar>
-      </properties>
-    </profile>
-    <profile>
-      <id>osx_profile</id>
-      <activation>
-        <os>
-          <family>mac</family>
-        </os>
-      </activation>
-      <properties>
-        <toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
       </properties>
     </profile>
   </profiles>
