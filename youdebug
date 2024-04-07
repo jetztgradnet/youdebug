@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -e
+
+BASEDIR=`dirname $0`
+
+LIBDIRS="$BASEDIR/lib $BASEDIR/build/deploy"
+CLASSPATH=
+MAIN="org.kohsuke.youdebug.YouDebug"
+OS=`uname -o 2>/dev/null`
+if [ -z "$JAVA" ]; then
+  JAVA=java
+fi
+
+# make files writable for owning group
+umask 0002
+
+# enable access to JDI module and enforce headless mode
+export JAVA_TOOL_OPTS="$JAVA_TOOL_OPTS \
+ -Djava.awt.headless=true \
+ --add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED"
+
+# set up classpath
+for dir in $LIBDIRS; do
+  for jar in $(ls -1 2>/dev/null $dir/*.jar); do
+    if [ -n "$CLASSPATH" ]; then
+      case "$OS" in
+      [Cc]ygwin)  CLASSPATH="$CLASSPATH;$jar";;
+      *)      CLASSPATH="$CLASSPATH:$jar";;
+      esac
+    else
+       CLASSPATH="$jar"
+    fi
+  done
+done
+
+# execute java command
+exec "$JAVA" $JAVA_TOOL_OPTS  $JAVA_OPTS -cp $CLASSPATH $MAIN "$@"
