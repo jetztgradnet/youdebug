@@ -32,9 +32,6 @@ public class YouDebug {
     @Option(name="-socket",usage="Attaches to the target process by a socket",metaVar="[HOST:]PORT")
     public String remote = null;
 
-    @Option(name="-toolsJar",usage="Specify the location of the tools.jar, if it's in a non-standard location",metaVar="JAR")
-    public File toolsJar = null;
-
 //    @Option(name="-force")
 //    public boolean force = false;
 //
@@ -108,40 +105,15 @@ public class YouDebug {
     }
 
     /**
-     * If JDI is not already loadable, make sure it's loadable by adding <tt>tools.jar</tt> to the classpath.
+     * Ensure that JDI is loaded and accessible
      */
     private void ensureJDILoaded() throws CmdLineException, MalformedURLException {
         try {
             getClass().getClassLoader().loadClass("com.sun.jdi.ThreadReference");
-            // if JDK is already loaded, we don't need to resolve tools.jar.
-        } catch (ClassNotFoundException _) {
-            // resolve tools.jar
-            if (toolsJar==null) {
-                // locate tools.jar via java.home if not specified
-                String home = System.getProperty("java.home");
-                toolsJar = new File(new File(home), "../lib/tools.jar");
-                if (!toolsJar.exists()) {
-                    toolsJar = new File(new File(home), "../Classes/classes.jar");
-                    if (!toolsJar.exists())
-                        throw new CmdLineException("Specify the location of tools.jar via -toolsJar, or run this tool with JDK (your java home is at "+home+')');
-                }
-            }
-            if (!toolsJar.exists())
-                throw new CmdLineException("No such file: "+toolsJar);
-
-            // shove tools.jar into the classpath
-            try {
-                ClassLoader cl = ClassLoader.getSystemClassLoader();
-                Method m = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-                m.setAccessible(true);
-                m.invoke(cl,toolsJar.toURL());
-            } catch (NoSuchMethodException e) {
-                throw new AssertionError(e);
-            } catch (IllegalAccessException e) {
-                throw new AssertionError(e);
-            } catch (InvocationTargetException e) {
-                throw new AssertionError(e);
-            }
+            // if JDK is already loaded, we don't need to open JDI module.
+        } catch (ClassNotFoundException x) {
+            // open JDI module
+            System.err.println("Please launch YouDebug with arguments '--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED'");
         }
     }
 }

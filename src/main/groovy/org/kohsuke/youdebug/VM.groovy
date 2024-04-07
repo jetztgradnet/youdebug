@@ -194,8 +194,9 @@ public class VM implements Closeable {
      */
     public BundledBreakpointRequest breakpoint(String className, int line, final Closure body) throws AbsentInformationException {
         List<BreakpointRequest> bpreqs = [];
+        final VM vm = _this();
         def r = forEachClass(className) { ReferenceType t ->
-            bpreqs.add(breakpoint(t,line,body));
+            bpreqs.add(vm.breakpoint(t,line,body));
         }
         return new BundledBreakpointRequest(r,bpreqs);
     }
@@ -256,8 +257,9 @@ public class VM implements Closeable {
      */
     public ExceptionRequest exceptionBreakpoint(String className, Collection<ExceptionBreakpointModifier> modifiers, Closure c) {
         List<ExceptionRequest> bpreqs = [];
+        final VM vm = _this();
         def r = forEachClass(className) { ReferenceType t ->
-            bpreqs.add(exceptionBreakpoint(t,modifiers,c));
+            bpreqs.add(vm.exceptionBreakpoint(t,modifiers,c));
         }
         return new BundledExceptionRequest(r,bpreqs);
     }
@@ -432,20 +434,6 @@ public class VM implements Closeable {
      */
     public ReferenceType ref(Class c) {
         return ref(c.getName());
-    }
-
-    /**
-     * Short hand for {@link #ref(Class)
-     */
-    public ReferenceType _(Class c) {
-        return ref(c);
-    }
-
-    /**
-     * Short hand for {@link #ref(String) 
-     */
-    public ReferenceType _(String c) {
-        return ref(c);
     }
 
     /**

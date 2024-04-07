@@ -44,6 +44,7 @@ public class VMFactory {
         LaunchingConnector a = findConnector("com.sun.jdi.CommandLineLaunch", vmm.launchingConnectors());
         Map<String,Argument> args = a.defaultArguments();
         args.get("main").setValue(commandLine);
+        args.get("options").setValue("--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED");
         return new VM(a.launch(args));
     }
 

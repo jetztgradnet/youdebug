@@ -121,13 +121,26 @@ public class JDICategory {
             if (staticOnly && !m.isStatic())
                 continue;       // we are only looking for a static method
 
-            List<Type> types = m.argumentTypes();
-            for (int i = 0; i < args.size(); i++) {
-                Value v = args.get(i);
-                if (v==null)        continue;   // null is assignable to anything
-                if (!isAssignableFrom(types.get(i),v.type()))
-                    continue OUTER; // not assignable
-
+            try {
+                List<Type> types = m.argumentTypes();
+                for (int i = 0; i < args.size(); i++) {
+                    Value v = args.get(i);
+                    if (v==null)        continue;   // null is assignable to anything
+                    if (!isAssignableFrom(types.get(i),v.type()))
+                        continue OUTER; // not assignable
+    
+                }
+            }
+            catch (com.sun.jdi.ClassNotLoadedException e) {
+                // target class is not yet loaded, try matching types by name
+                List<String> typeNames = m.argumentTypeNames();
+                for (int i = 0; i < args.size(); i++) {
+                    Value v = args.get(i);
+                    if (v==null)        continue;   // null is assignable to anything
+                    if (!typeNames.get(i).equals(v.type().name()))
+                        continue OUTER; // not assignable
+    
+                }
             }
 
             return m;

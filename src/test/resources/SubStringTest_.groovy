@@ -10,12 +10,12 @@ vm.breakpoint("SubStringTest",8) {
         e.dumpStackTrace();
 
         // evaluate getMessage()
-        Assert.assertEquals("String index out of range: -1",e.getMessage());
+        Assert.assertEquals("begin 5, end 4, length 4",e.getMessage());
         // local hashCode vs remote hashCode
         Assert.assertTrue(e.hashCode()!=e.'@hashCode'());
 
         // reference to a static field
-        vm._(System).out.println("Hello from debugger");
+        vm.ref(System).out.println("Hello from debugger");
 
         // static method invocation
         Assert.assertEquals(
