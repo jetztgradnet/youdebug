@@ -1,0 +1,46 @@
+plugins {
+    id 'groovy'
+}
+
+version = '2.0-SNAPSHOT'
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.apache.groovy:groovy:4.0.20'
+  implementation 'args4j:args4j:2.37'
+  testImplementation 'junit:junit:3.8.2'
+}
+
+sourceSets.main.java.srcDirs = []
+sourceSets.main.groovy.srcDirs += ["src/main/java"]
+
+def appsTargetFolder = rootProject.file("target/apps")
+def deployFolder = project.file("build/deploy");
+
+task deploy(type: Copy, dependsOn: 'jar') {
+  into deployFolder;
+  from jar
+  
+  // dependencies
+  from configurations.runtimeClasspath
+  
+  outputs.upToDateWhen { false } // always re-do
+  doFirst {
+    delete deployFolder
+  }
+}
+
+task appZip(type: Zip, dependsOn: 'deploy') {
+  from 'youdebug'
+  
+  into ("lib")
+  from deployFolder;
+  destinationDirectory = appsTargetFolder
+}
+
+build.dependsOn 'deploy'
